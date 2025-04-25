@@ -17,9 +17,11 @@ const AdminLogin = () => {
     e.preventDefault();
     // This is a placeholder - we'll need to integrate with a proper backend
     if (email && password) {
+      // For demo purposes, directly navigate to dashboard
       toast({
-        description: "Please connect Supabase to implement actual authentication.",
+        description: "Login successful! Welcome, administrator.",
       });
+      navigate("/admin-dashboard");
     }
   };
 
