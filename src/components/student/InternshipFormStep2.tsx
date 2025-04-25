@@ -2,6 +2,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InternshipFormData } from "@/pages/StudentDashboard";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { companyOptions } from "@/constants/formOptions";
 
 interface InternshipFormStep2Props {
   formData: InternshipFormData;
@@ -12,6 +14,20 @@ const InternshipFormStep2 = ({ formData, updateFormData }: InternshipFormStep2Pr
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [e.target.name]: e.target.value });
   };
+
+  const handleCompanyChange = (value: string) => {
+    if (value === "other") {
+      updateFormData({ 
+        selectedCompany: "other",
+        companyName: "" 
+      });
+    } else {
+      updateFormData({ 
+        selectedCompany: value,
+        companyName: value 
+      });
+    }
+  };
   
   return (
     <div>
@@ -19,15 +35,36 @@ const InternshipFormStep2 = ({ formData, updateFormData }: InternshipFormStep2Pr
       
       <div className="mb-6">
         <div className="space-y-2">
-          <Label htmlFor="companyName">Full Name of the Company</Label>
-          <Input
-            id="companyName"
-            name="companyName"
-            placeholder="e.g. Google Inc."
-            value={formData.companyName}
-            onChange={handleChange}
-            required
-          />
+          <Label htmlFor="company">Company</Label>
+          <Select 
+            value={formData.selectedCompany} 
+            onValueChange={handleCompanyChange}
+          >
+            <SelectTrigger id="company">
+              <SelectValue placeholder="Select company" />
+            </SelectTrigger>
+            <SelectContent>
+              {companyOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {formData.selectedCompany === "other" && (
+            <div className="mt-4">
+              <Label htmlFor="companyName">Company Name</Label>
+              <Input
+                id="companyName"
+                name="companyName"
+                placeholder="Enter company name"
+                value={formData.companyName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          )}
         </div>
       </div>
       
@@ -51,20 +88,6 @@ const InternshipFormStep2 = ({ formData, updateFormData }: InternshipFormStep2Pr
             name="stipend"
             placeholder="e.g. 20000"
             value={formData.stipend}
-            onChange={handleChange}
-            required
-          />
-        </div>
-      </div>
-      
-      <div className="mb-6">
-        <div className="space-y-2">
-          <Label htmlFor="duration">Duration (months)</Label>
-          <Input
-            id="duration"
-            name="duration"
-            placeholder="e.g. 3"
-            value={formData.duration}
             onChange={handleChange}
             required
           />

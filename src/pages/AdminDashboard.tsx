@@ -1,9 +1,18 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Filter, Download } from "lucide-react";
+import Header from "@/components/common/Header";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Table, 
   TableBody, 
@@ -12,12 +21,8 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Download, Filter } from "lucide-react";
-import Header from "@/components/common/Header";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { courseOptions, branchOptions, yearOptions, companyOptions } from "@/constants/formOptions";
 
-// Sample data
 const sampleData = [
   {
     id: 1,
@@ -84,7 +89,6 @@ const AdminDashboard = () => {
     course: "",
     company: "",
     role: "",
-    duration: "",
     studentName: "",
   });
   
@@ -107,9 +111,8 @@ const AdminDashboard = () => {
   });
   
   // Handle filter changes
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+  const handleFilterChange = (value: string, field: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
   };
   
   // Reset all filters
@@ -121,7 +124,6 @@ const AdminDashboard = () => {
       course: "",
       company: "",
       role: "",
-      duration: "",
       studentName: "",
     });
   };
@@ -131,25 +133,29 @@ const AdminDashboard = () => {
     setVisibleColumns(prev => ({ ...prev, [column]: !prev[column] }));
   };
   
-  // Export data as CSV
+  // Export visible columns as CSV
   const handleExportCSV = () => {
-    // In a real app, this would generate and download a CSV file
-    alert("Downloading data as CSV...");
+    const visibleColumnKeys = Object.entries(visibleColumns)
+      .filter(([_, isVisible]) => isVisible)
+      .map(([key]) => key);
+
+    // In a real app, this would generate and download a CSV with only visible columns
+    alert(`Downloading data with columns: ${visibleColumnKeys.join(", ")}`);
   };
   
   // Filter the data based on filters
   const filteredData = sampleData.filter(item => {
     return (
-      (filters.year ? item.year.toLowerCase().includes(filters.year.toLowerCase()) : true) &&
-      (filters.branch ? item.branch.toLowerCase().includes(filters.branch.toLowerCase()) : true) &&
-      (filters.academicYear ? item.academicYear.toLowerCase().includes(filters.academicYear.toLowerCase()) : true) &&
-      (filters.course ? item.course.toLowerCase().includes(filters.course.toLowerCase()) : true) &&
-      (filters.company ? item.company.toLowerCase().includes(filters.company.toLowerCase()) : true) &&
+      (filters.year ? item.year === filters.year : true) &&
+      (filters.branch ? item.branch === filters.branch : true) &&
+      (filters.academicYear ? item.academicYear === filters.academicYear : true) &&
+      (filters.course ? item.course === filters.course : true) &&
+      (filters.company ? item.company === filters.company : true) &&
       (filters.role ? item.role.toLowerCase().includes(filters.role.toLowerCase()) : true) &&
       (filters.studentName ? item.studentName.toLowerCase().includes(filters.studentName.toLowerCase()) : true)
     );
   });
-  
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header title="INTERNSHIP-DATA" />
@@ -164,80 +170,99 @@ const AdminDashboard = () => {
           <TabsContent value="applications">
             <Card className="p-6 overflow-hidden">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="year">Year</Label>
-                  <Input
-                    id="year"
-                    name="year"
-                    placeholder="Filter by year"
+                  <Select
                     value={filters.year}
-                    onChange={handleFilterChange}
-                  />
+                    onValueChange={(value) => handleFilterChange(value, 'year')}
+                  >
+                    <SelectTrigger id="year">
+                      <SelectValue placeholder="Filter by year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {yearOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="branch">Branch</Label>
-                  <Input
-                    id="branch"
-                    name="branch"
-                    placeholder="Filter by branch"
+                  <Select
                     value={filters.branch}
-                    onChange={handleFilterChange}
-                  />
+                    onValueChange={(value) => handleFilterChange(value, 'branch')}
+                  >
+                    <SelectTrigger id="branch">
+                      <SelectValue placeholder="Filter by branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branchOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
-                <div>
+                <div className="space-y-2">
+                  <Label htmlFor="course">Course</Label>
+                  <Select
+                    value={filters.course}
+                    onValueChange={(value) => handleFilterChange(value, 'course')}
+                  >
+                    <SelectTrigger id="course">
+                      <SelectValue placeholder="Filter by course" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {courseOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="company">Company</Label>
+                  <Select
+                    value={filters.company}
+                    onValueChange={(value) => handleFilterChange(value, 'company')}
+                  >
+                    <SelectTrigger id="company">
+                      <SelectValue placeholder="Filter by company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companyOptions.filter(option => option.value !== 'other').map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
                   <Label htmlFor="academicYear">Academic Year</Label>
                   <Input
                     id="academicYear"
-                    name="academicYear"
                     placeholder="Filter by academic year"
                     value={filters.academicYear}
-                    onChange={handleFilterChange}
+                    onChange={(e) => handleFilterChange(e.target.value, 'academicYear')}
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="course">Course</Label>
-                  <Input
-                    id="course"
-                    name="course"
-                    placeholder="Filter by course"
-                    value={filters.course}
-                    onChange={handleFilterChange}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="company">Company</Label>
-                  <Input
-                    id="company"
-                    name="company"
-                    placeholder="Filter by company"
-                    value={filters.company}
-                    onChange={handleFilterChange}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="role">Role</Label>
-                  <Input
-                    id="role"
-                    name="role"
-                    placeholder="Filter by role"
-                    value={filters.role}
-                    onChange={handleFilterChange}
-                  />
-                </div>
-                
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="studentName">Student Name</Label>
                   <Input
                     id="studentName"
-                    name="studentName"
                     placeholder="Filter by student name"
                     value={filters.studentName}
-                    onChange={handleFilterChange}
+                    onChange={(e) => handleFilterChange(e.target.value, 'studentName')}
                   />
                 </div>
                 
@@ -254,27 +279,26 @@ const AdminDashboard = () => {
               </div>
               
               <div className="mb-4 flex justify-between items-center">
-                <div className="relative inline-block">
-                  <Button variant="outline">Display Columns</Button>
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 p-2 border hidden group-hover:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">Display Columns</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
                     {Object.entries(visibleColumns).map(([key, value]) => (
-                      <div key={key} className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
-                        <Checkbox 
-                          id={`column-${key}`}
-                          checked={value} 
-                          onCheckedChange={() => toggleColumnVisibility(key as ColumnKey)}
-                        />
-                        <Label htmlFor={`column-${key}`} className="cursor-pointer">
-                          {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
-                        </Label>
-                      </div>
+                      <DropdownMenuCheckboxItem
+                        key={key}
+                        checked={value}
+                        onCheckedChange={() => toggleColumnVisibility(key as ColumnKey)}
+                      >
+                        {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                      </DropdownMenuCheckboxItem>
                     ))}
-                  </div>
-                </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 <Button onClick={handleExportCSV} variant="outline">
                   <Download className="mr-2 h-4 w-4" />
-                  Export .CSV
+                  Export Selected Columns
                 </Button>
               </div>
               

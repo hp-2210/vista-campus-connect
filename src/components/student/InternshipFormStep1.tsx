@@ -2,6 +2,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InternshipFormData } from "@/pages/StudentDashboard";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { courseOptions, branchOptions, yearOptions, semesterOptions } from "@/constants/formOptions";
 
 interface InternshipFormStep1Props {
   formData: InternshipFormData;
@@ -12,12 +14,28 @@ const InternshipFormStep1 = ({ formData, updateFormData }: InternshipFormStep1Pr
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateFormData({ [e.target.name]: e.target.value });
   };
+
+  const handleSelectChange = (value: string, field: keyof InternshipFormData) => {
+    updateFormData({ [field]: value });
+  };
   
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Student Information</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="fullName">Full Name</Label>
+          <Input
+            id="fullName"
+            name="fullName"
+            placeholder="Enter your full name"
+            value={formData.fullName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="rollNumber">Roll Number</Label>
           <Input
@@ -32,50 +50,78 @@ const InternshipFormStep1 = ({ formData, updateFormData }: InternshipFormStep1Pr
         
         <div className="space-y-2">
           <Label htmlFor="course">Course</Label>
-          <Input
-            id="course"
-            name="course"
-            placeholder="e.g. B.Tech"
-            value={formData.course}
-            onChange={handleChange}
-            required
-          />
+          <Select 
+            value={formData.course} 
+            onValueChange={(value) => handleSelectChange(value, 'course')}
+          >
+            <SelectTrigger id="course">
+              <SelectValue placeholder="Select course" />
+            </SelectTrigger>
+            <SelectContent>
+              {courseOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         <div className="space-y-2">
           <Label htmlFor="branch">Branch</Label>
-          <Input
-            id="branch"
-            name="branch"
-            placeholder="e.g. Computer Science"
-            value={formData.branch}
-            onChange={handleChange}
-            required
-          />
+          <Select 
+            value={formData.branch} 
+            onValueChange={(value) => handleSelectChange(value, 'branch')}
+          >
+            <SelectTrigger id="branch">
+              <SelectValue placeholder="Select branch" />
+            </SelectTrigger>
+            <SelectContent>
+              {branchOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         <div className="space-y-2">
           <Label htmlFor="year">Year</Label>
-          <Input
-            id="year"
-            name="year"
-            placeholder="e.g. 3"
-            value={formData.year}
-            onChange={handleChange}
-            required
-          />
+          <Select 
+            value={formData.year} 
+            onValueChange={(value) => handleSelectChange(value, 'year')}
+          >
+            <SelectTrigger id="year">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent>
+              {yearOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         <div className="space-y-2">
           <Label htmlFor="semester">Semester</Label>
-          <Input
-            id="semester"
-            name="semester"
-            placeholder="e.g. 5"
-            value={formData.semester}
-            onChange={handleChange}
-            required
-          />
+          <Select 
+            value={formData.semester} 
+            onValueChange={(value) => handleSelectChange(value, 'semester')}
+          >
+            <SelectTrigger id="semester">
+              <SelectValue placeholder="Select semester" />
+            </SelectTrigger>
+            <SelectContent>
+              {semesterOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         <div className="space-y-2">

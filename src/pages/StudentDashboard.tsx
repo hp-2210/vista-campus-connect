@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,9 +8,11 @@ import InternshipFormStep3 from "@/components/student/InternshipFormStep3";
 import InternshipFormStep4 from "@/components/student/InternshipFormStep4";
 import FeedbackForm from "@/components/student/FeedbackForm";
 import Header from "@/components/common/Header";
+import { differenceInDays } from "date-fns";
 
 export type InternshipFormData = {
   // Step 1: Student Information
+  fullName: string;
   rollNumber: string;
   course: string;
   branch: string;
@@ -22,10 +23,10 @@ export type InternshipFormData = {
   academicYear: string;
   
   // Step 2: Company & Role Details
+  selectedCompany: string;
   companyName: string;
   roleOffered: string;
   stipend: string;
-  duration: string;
   hrName: string;
   hrMobile: string;
   hrEmail: string;
@@ -49,6 +50,7 @@ export type FeedbackData = {
 const StudentDashboard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<InternshipFormData>({
+    fullName: "",
     rollNumber: "",
     course: "",
     branch: "",
@@ -57,10 +59,10 @@ const StudentDashboard = () => {
     email: "",
     mobileNumber: "",
     academicYear: "",
+    selectedCompany: "",
     companyName: "",
     roleOffered: "",
     stipend: "",
-    duration: "",
     hrName: "",
     hrMobile: "",
     hrEmail: "",
@@ -75,10 +77,13 @@ const StudentDashboard = () => {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const { toast } = useToast();
   
-  // Check if internship end date has passed to show feedback form
+  const shouldShowFeedback = (submission: InternshipFormData) => {
+    if (!submission.endDate) return false;
+    return differenceInDays(new Date(), submission.endDate) >= 0;
+  };
+
   useEffect(() => {
-    // For demo, assume there's a submission and its end date has passed
-    const canShowFeedback = submissions.length > 0;
+    const canShowFeedback = submissions.some(shouldShowFeedback);
     setShowFeedbackForm(canShowFeedback);
   }, [submissions]);
   
@@ -99,18 +104,28 @@ const StudentDashboard = () => {
   };
   
   const handleSubmit = () => {
-    // In a real app, this would send data to a backend
+    if (!Object.values(formData).every(value => 
+      value !== "" && value !== null || 
+      (typeof value === "string" && value.trim() !== "")
+    )) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please fill in all required fields",
+      });
+      return;
+    }
+
     toast({
       title: "Application Submitted",
       description: "Your internship application has been submitted successfully.",
     });
     
-    // Add to submissions for demo purposes
     setSubmissions([...submissions, formData]);
     
-    // Reset form for new entry
     setCurrentStep(1);
     setFormData({
+      fullName: "",
       rollNumber: "",
       course: "",
       branch: "",
@@ -119,10 +134,10 @@ const StudentDashboard = () => {
       email: "",
       mobileNumber: "",
       academicYear: "",
+      selectedCompany: "",
       companyName: "",
       roleOffered: "",
       stipend: "",
-      duration: "",
       hrName: "",
       hrMobile: "",
       hrEmail: "",
